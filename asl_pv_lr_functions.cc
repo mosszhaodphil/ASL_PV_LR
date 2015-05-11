@@ -33,7 +33,7 @@ namespace OXASL {
 
           // Only work with positive voxels
           if(mask(i, j, k) > 0) {
-            submask = 
+            
 
           }
 
