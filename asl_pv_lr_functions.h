@@ -20,7 +20,7 @@ namespace OXASL {
   void pv_correct(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel, volume<float>& data_out);
 
   // PV correction using linear regression (Asllani's method)
-  volume<float> correct_pv_lr(volume<float>& data_in, volume<float>& mask, volume<float>& pv_map, int kernel);
+  volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel);
 
   /*
 
