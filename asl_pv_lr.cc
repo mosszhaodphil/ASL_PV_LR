@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     outname = opts.outname.value();
 
     // load kernel size
-    float kernel;
+    int kernel;
     kernel = opts.kernel.value();
 
     // GM and WM corrected single TI file
