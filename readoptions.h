@@ -32,7 +32,7 @@ public:
   Option<string> pvwmfile;
   Option<string> outname;
   //Option<string> aif;
-  Option<float> kernel;
+  Option<int> kernel;
 
   //Option<string> metric;
   //Option<float> mthresh;
@@ -107,7 +107,7 @@ pvwmfile(string("--pvwm"), string("pvwm"),
 outname(string("--out"), string("outname"),
   string("Output directory name"), true, requires_argument),
 
-kernel(string("--kenrel"), 5.0,
+kernel(string("--kenrel"), 5,
   string("Kernel size (Default: 5)"), true, requires_argument),
 
 /*

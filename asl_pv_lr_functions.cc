@@ -8,18 +8,39 @@
 
 namespace OXASL {
 
-  void pv_correct(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, float kernel, volume<float>& data_out) {
+  void pv_correct(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel, volume<float>& data_out) {
 
     data_out = correct_pv_lr(data_in, mask, pv_map, kernel);
 
   }
 
   // Function to correct PV using LR method
-  volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, float kernel) {
+  volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel) {
 
-    volume<float> corr_data;
+    volume<float> corr_data; // result matrix
+
+    // Get x y z dimension
+    int x = data_in.xsize;
+    int y = data_in.ysize;
+    int z = data_in.zsize;
+
+    cout << x;
+
+    // Linear regression to correct (smooth) the data
+    for (int i = 1; i <= x; i++) {
+      for (int j = 1; j <= y; j++) {
+        for (int k = 1; k <=z; k++) {
+
+          // Only work with positive voxels
+          if(mask(i, j, k) > 0) {
+            submask = 
+
+          }
 
 
+        }
+      }
+    }
 
     return corr_data;
 

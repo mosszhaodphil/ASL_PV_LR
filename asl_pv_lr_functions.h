@@ -17,10 +17,10 @@ using namespace NEWIMAGE;
 namespace OXASL {
 
 
-  void pv_correct(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, float kernel, volume<float>& data_out);
+  void pv_correct(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel, volume<float>& data_out);
 
   // PV correction using linear regression (Asllani's method)
-  volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, float kernel);
+  volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel);
 
   /*
 
