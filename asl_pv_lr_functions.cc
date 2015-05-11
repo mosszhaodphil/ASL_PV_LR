@@ -15,7 +15,7 @@ namespace OXASL {
   }
 
   // Function to correct PV using LR method
-  ReturnMatrix correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, float kernel) {
+  volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, float kernel) {
 
     volume<float> corr_data;
 
