@@ -89,29 +89,31 @@ datafile(string("--data,--datafile"), string("data"),
   string("ASL data file"),
   true, requires_argument),  
 */
+
+// Compulsory arguments
 datafile(string("--data,--datafile"), string("data"),
   string("Single_TI data file"),
   true, requires_argument),
 
-maskfile(string("--mask"), string(""),
+maskfile(string("--mask"), string("mask"),
   string("mask"), true, requires_argument),
 
-pvgmfile(string("--pvgm"), string(""),
+pvgmfile(string("--pvgm"), string("pvgm"),
   string("GM PV map"), true, requires_argument),
 
-pvwmfile(string("--pvwm"), string(""),
+pvwmfile(string("--pvwm"), string("pvwm"),
   string("WM PV map"), true, requires_argument),
+
+outname(string("--out"), string("outname"),
+  string("Output directory name"), true, requires_argument),
+
+kernel(string("--kenrel"), 5.0,
+  string("Kernel size (Default: 5)"), true, requires_argument),
 
 /*
 outname(string("--out"), string("asl_mfree"),
   string("Output directory name"), true, requires_argument),
 */
-
-outname(string("--out"), string("LR_k5"),
-  string("Output directory name (Default: LR_k5"), true, requires_argument),
-
-kernel(string("--kenrel"), 5.0,
-  string("Kernel size (Default: 5)"), true, requires_argument),
 
 /*
 aif(string("--aif"),string(""),
