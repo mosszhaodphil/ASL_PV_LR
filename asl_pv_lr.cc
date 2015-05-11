@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     cout << "Loading data" << endl;
 
     // data file name
-    string data_filename
+    string data_filename;
     data_filename = opts.datafile.value();
 
     // load data (3D matrix)
@@ -52,11 +52,11 @@ int main(int argc, char *argv[])
 
     // load pvgm
     volume<float> pvgm;
-    read_volume(pvgm, options.pvgmfile.value());
+    read_volume(pvgm, opts.pvgmfile.value());
 
     // load pvwm
     volume<float> pvwm;
-    read_volume(pvwm, options.pvwmfile.value());
+    read_volume(pvwm, opts.pvwmfile.value());
 
     // load output file name
     string outname;
@@ -68,12 +68,12 @@ int main(int argc, char *argv[])
 
     // GM and WM corrected single TI file
     string gm_out_filename;
-    strcat(gm_out_filename, data_filename);
-    strcat(gm_out_filename, "_gm");
+    //strcat(gm_out_filename, data_filename);
+    //strcat(gm_out_filename, "_gm");
 
     string wm_out_filename;
-    strcat(wm_out_filename, data_filename);
-    strcat(wm_out_filename, "_wm");
+    //strcat(wm_out_filename, data_filename);
+    //strcat(wm_out_filename, "_wm");
 
     // Empty 3D matrix to save  PV corrected results
     volume<float> data_gm;
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
     pv_correct(data, mask, pvgm, kernel, data_gm);
     pv_correct(data, mask, pvwm, kernel, data_wm);
 
-    save_volume(data_gm, gm_out_filename);
-    save_volume(data_wm, wm_out_filename);
+    //save_volume(data_gm, gm_out_filename);
+    //save_volume(data_wm, wm_out_filename);
 
     /*
 
