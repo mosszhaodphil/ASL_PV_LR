@@ -24,8 +24,8 @@ namespace OXASL {
     volume<float> pv_roi;
     //Matrix pseudo_inv; // pseudo inverse matrix
     RowVector pseudo_inv;
-    //Matrix pv_corr_result;
-    float pv_corr_result;
+    Matrix pv_corr_result;
+    //float pv_corr_result;
 
     int x_0;
     int x_1;
@@ -43,9 +43,9 @@ namespace OXASL {
     int z = data_in.zsize();
 
     // Linear regression to correct (smooth) the data
-    for (int i = 1; i <= x; i++) {
-      for (int j = 1; j <= y; j++) {
-        for (int k = 1; k <=z; k++) {
+    for (int i = 0; i < x; i++) {
+      for (int j = 0; j < y; j++) {
+        for (int k = 0; k < z; k++) {
 
           // Only work with positive voxels
           if(mask(i, j, k) > 0) {
@@ -65,7 +65,7 @@ namespace OXASL {
 
             // calculate the sum of all elements in submask
             // proceed if sum is greater than 5 (arbitrary threshold)
-            cout << mask.ROI().sum() << endl;
+            //cout << mask.ROI().sum() << endl;
             if(mask.ROI().sum() > 5) {
               /* Create an ROI (sub volume of data and PV map),
                 then mask it with submask to create sub data and PV map */
@@ -90,18 +90,22 @@ namespace OXASL {
               ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
               ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
 
-              count = 1;
-              for(int a = 1; a <= data_roi.xsize(); a++) {
-                for(int b = 1; b <= data_roi.ysize(); b++) {
-                  for(int c = 1; c <= data_roi.zsize(); c++) {
-                    getchar();
+              //cout << data_roi.xsize() << endl;
+              count = 0;
+              for(int a = 0; a < data_roi.xsize(); a++) {
+                for(int b = 0; b < data_roi.ysize(); b++) {
+                  for(int c = 0; c < data_roi.zsize(); c++) {
+                    //getchar();
                     data_roi_m.element(count) = data_roi.value(a, b, c);
                     pv_roi_m.element(count) = pv_roi.value(a, b, c);
                     count++;
                   }
+                  //getchar();
                 }
+                //cout << a << endl;
+                //getchar();
               }
-
+              cout << "HH" << endl;
               getchar();
               // Get pseudo inversion matrix of PV map
               // ((P^t * P) ^ -1) * (P^t)
@@ -109,18 +113,22 @@ namespace OXASL {
 
               // Get average PV value of the current kernel
               pv_ave = (float) pv_roi_m.Sum() / (count - 1);
-
+              cout << "BB" << endl;
               getchar();
 
               // Calculate PV corrected data only if there is some PV compoment
               // If there is little PV small, make it zero
               if(pv_ave >= 0.01) {
+                cout << "CC" << endl;
                 pv_corr_result = pseudo_inv * data_roi_m;
-                corr_data.value(i, j, k) = pv_corr_result;
+                cout << "DD" << endl;
+                corr_data.value(i, j, k) = pv_corr_result.element(0, 0);
+                cout << "EE" << endl;
               }
               else {
                 corr_data.value(i, j, k) = 0.0f;
               }
+              
 
             }
 
