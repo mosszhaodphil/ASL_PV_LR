@@ -48,12 +48,12 @@ namespace OXASL {
                 then mask it with submask to create sub data and PV map */
 
               // Determine ROI boundary index
-              x_0 = max(i - kernel, 1);
-              x_1 = min(i + kernel, x);
-              y_0 = max(j - kernel, 1);
-              y_1 = min(j + kernel, y);
-              z_0 = max(k - kernel, 1);
-              z_1 = min(k + kernel, z);
+              int x_0 = max(i - kernel, 1);
+              int x_1 = min(i + kernel, x);
+              int y_0 = max(j - kernel, 1);
+              int y_1 = min(j + kernel, y);
+              int z_0 = max(k - kernel, 1);
+              int z_1 = min(k + kernel, z);
 
               // Obtain ROI volume (must set limits and activate first)
               data_roi.setROIlimits(x_0, x_1, y_0, y_1, z_0, z_1);
