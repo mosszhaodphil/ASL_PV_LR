@@ -13,7 +13,7 @@ OBJS = readoptions.o asl_pv_lr_functions.o
 
 all:	${XFILES}
 
-	${CXX}  ${CXXFLAGS} ${LDFLAGS} -o $@ ${OBJS} asl_mfree.o ${LIBS}
+	${CXX}  ${CXXFLAGS} ${LDFLAGS} -o $@ ${OBJS} asl_pv_lr.o ${LIBS}
 
 asl_pv_lr: ${OBJS} asl_pv_lr.o 
 	${CXX}  ${CXXFLAGS} ${LDFLAGS} -o $@ ${OBJS} asl_pv_lr.o ${LIBS}
