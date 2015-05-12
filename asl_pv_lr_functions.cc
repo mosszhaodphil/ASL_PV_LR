@@ -42,7 +42,7 @@ namespace OXASL {
       }
     }
 
-    return corr_data;
+    return data_in;
 
   }
 
