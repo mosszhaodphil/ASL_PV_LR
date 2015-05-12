@@ -23,6 +23,14 @@ namespace OXASL {
     volume<float> data_roi;
     volume<float> pv_roi;
     Matrix pseudo_inv; // pseudo inverse matrix
+    Matrix pv_corr_result;
+
+    int x_0;
+    int x_1;
+    int y_0;
+    int y_1;
+    int z_0;
+    int z_1;
 
     // Get x y z dimension
     int x = data_in.xsize();
@@ -48,12 +56,12 @@ namespace OXASL {
                 then mask it with submask to create sub data and PV map */
 
               // Determine ROI boundary index
-              int x_0 = max(i - kernel, 1);
-              int x_1 = min(i + kernel, x);
-              int y_0 = max(j - kernel, 1);
-              int y_1 = min(j + kernel, y);
-              int z_0 = max(k - kernel, 1);
-              int z_1 = min(k + kernel, z);
+              x_0 = max(i - kernel, 1);
+              x_1 = min(i + kernel, x);
+              y_0 = max(j - kernel, 1);
+              y_1 = min(j + kernel, y);
+              z_0 = max(k - kernel, 1);
+              z_1 = min(k + kernel, z);
 
               // Obtain ROI volume (must set limits and activate first)
               data_roi.setROIlimits(x_0, x_1, y_0, y_1, z_0, z_1);
@@ -84,7 +92,7 @@ namespace OXASL {
 
               // Get pseudo inversion matrix of PV map
               // ((P^t * P^-1) ^ -1) * (P^t)
-              pseudo_inv.copydata( (pv_roi_m.t() * pv_roi_m.i()).i() * (pv_roi_m.t()) );
+              pseudo_inv = ( (pv_roi_m.t() * pv_roi_m.i()).i() ) * (pv_roi_m.t());
 
               // Get average PV value of the current kernel
               int pv_ave = pv_roi_m.Sum() / (count - 1);
@@ -92,7 +100,8 @@ namespace OXASL {
               // Calculate PV corrected data only if there is some PV compoment
               // If there is little PV small, make it zero
               if(pv_ave >= 0.01) {
-                corr_data.value(i, j, k) = pseudo_inv * data_roi_m;
+                pv_corr_result = pseudo_inv * data_roi_m;
+                corr_data.value(i, j, k) = pv_corr_result.element(1, 1);
               }
               else {
                 corr_data.value(i, j, k) = 0.0f;
