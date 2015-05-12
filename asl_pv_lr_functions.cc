@@ -22,7 +22,7 @@ namespace OXASL {
     volume<float> submask;
     volume<float> data_roi;
     volume<float> pv_roi;
-    volume<float> pseudo_inv; // pseudo inverse matrix
+    Matrix pseudo_inv; // pseudo inverse matrix
 
     // Get x y z dimension
     int x = data_in.xsize();
@@ -87,15 +87,15 @@ namespace OXASL {
               pseudo_inv.copydata( (pv_roi_m.t() * pv_roi_m.i()).i() * (pv_roi_m.t()) );
 
               // Get average PV value of the current kernel
-              int pv_ave = pv_roi_m.sum() / (count - 1);
+              int pv_ave = pv_roi_m.Sum() / (count - 1);
 
               // Calculate PV corrected data only if there is some PV compoment
               // If there is little PV small, make it zero
               if(pv_ave >= 0.01) {
-                corr_data.element(i, j, k) = pseudo_inv * data_roi_m;
+                corr_data.value(i, j, k) = pseudo_inv * data_roi_m;
               }
               else {
-                corr_data.element(i, j, k) = 0.0f;
+                corr_data.value(i, j, k) = 0.0f;
               }
 
             }
