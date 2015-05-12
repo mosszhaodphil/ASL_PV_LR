@@ -19,6 +19,11 @@ namespace OXASL {
 
     volume<float> corr_data; // result matrix
 
+    volume<float> submask;
+    volume<float> data_roi;
+    volume<float> pv_roi;
+    volume<float> pseudo_inv; // pseudo inverse matrix
+
     // Get x y z dimension
     int x = data_in.xsize();
     int y = data_in.ysize();
@@ -34,9 +39,76 @@ namespace OXASL {
           // Only work with positive voxels
           if(mask(i, j, k) > 0) {
             
+            // create a submask here
+
+            // calculate the sum of all elements in submask
+            // proceed if sum is greater than 5 (arbitrary threshold)
+            if(submask.sum() > 5) {
+              /* Create an ROI (sub volume of data and PV map),
+                then mask it with submask to create sub data and PV map */
+
+              // Determine ROI boundary index
+              x_0 = max(i - kernel, 1);
+              x_1 = min(i + kernel, x);
+              y_0 = max(j - kernel, 1);
+              y_1 = min(j + kernel, y);
+              z_0 = max(k - kernel, 1);
+              z_1 = min(k + kernel, z);
+
+              // Obtain ROI volume (must set limits and activate first)
+              data_roi.setROIlimits(x_0, x_1, y_0, y_1, z_0, z_1);
+              pv_roi.setROIlimits(x_0, x_1, y_0, y_1, z_0, z_1);
+              data_roi.activateROI();
+              pv_roi.activateROI();
+              data_roi.copyROIonly(data_in);
+              pv_roi.copyROIonly(pv_map);
+
+              // Deactivate ROI
+              data_roi.deactivateROI();
+              pv_roi.deactivateROI();
+
+              // Conver data_roi and pv_roi to 2D matrix (column vector)
+              Matrix data_roi_m = Matrix(data_roi.xsize() * data_roi.ysize() * data_roi.zsize(), 1);
+              Matrix pv_roi_m = Matrix(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize(), 1);
+
+              int count = 1;
+              for(int a = 1; a < data_roi.xsize(); a++) {
+                for(int b = 1; b < data_roi.ysize(); b++) {
+                  for(int c = 1; c < data_roi.zsize(); c++) {
+                    data_roi_m.element(count, 1) = data_roi.value(a, b, c);
+                    pv_roi_m.element(count, 1) = pv_roi.value(a, b, c);
+                    count++;
+                  }
+                }
+              }
+
+              // Get pseudo inversion matrix of PV map
+              // ((P^t * P^-1) ^ -1) * (P^t)
+              pseudo_inv.copydata( (pv_roi_m.t() * pv_roi_m.i()).i() * (pv_roi_m.t()) );
+
+              // Get average PV value of the current kernel
+              int pv_ave = pv_roi_m.sum() / (count - 1);
+
+              // Calculate PV corrected data only if there is some PV compoment
+              // If there is little PV small, make it zero
+              if(pv_ave >= 0.01) {
+                corr_data.element(i, j, k) = pseudo_inv * data_roi_m;
+              }
+              else {
+                corr_data.element(i, j, k) = 0.0f;
+              }
+
+            }
+
+            else {
+              // do nothing at the moment
+            }
 
           }
 
+          else{
+            // do nothing at the moment
+          }
 
         }
       }
