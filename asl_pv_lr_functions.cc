@@ -22,8 +22,10 @@ namespace OXASL {
     volume<float> submask;
     volume<float> data_roi;
     volume<float> pv_roi;
-    Matrix pseudo_inv; // pseudo inverse matrix
-    Matrix pv_corr_result;
+    //Matrix pseudo_inv; // pseudo inverse matrix
+    RowVector pseudo_inv;
+    //Matrix pv_corr_result;
+    float pv_corr_result;
 
     int x_0;
     int x_1;
@@ -83,16 +85,18 @@ namespace OXASL {
               pv_roi.deactivateROI();
 
               // Conver data_roi and pv_roi to 2D matrix (column vector)
-              Matrix data_roi_m = Matrix(data_roi.xsize() * data_roi.ysize() * data_roi.zsize(), 1);
-              Matrix pv_roi_m = Matrix(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize(), 1);
+              //Matrix data_roi_m = Matrix(data_roi.xsize() * data_roi.ysize() * data_roi.zsize(), 1);
+              //Matrix pv_roi_m = Matrix(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize(), 1);
+              ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
+              ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
 
               count = 1;
               for(int a = 1; a <= data_roi.xsize(); a++) {
                 for(int b = 1; b <= data_roi.ysize(); b++) {
                   for(int c = 1; c <= data_roi.zsize(); c++) {
                     getchar();
-                    data_roi_m.value(count, 1) = data_roi.value(a, b, c);
-                    pv_roi_m.value(count, 1) = pv_roi.value(a, b, c);
+                    data_roi_m.element(count) = data_roi.value(a, b, c);
+                    pv_roi_m.element(count) = pv_roi.value(a, b, c);
                     count++;
                   }
                 }
@@ -112,7 +116,7 @@ namespace OXASL {
               // If there is little PV small, make it zero
               if(pv_ave >= 0.01) {
                 pv_corr_result = pseudo_inv * data_roi_m;
-                corr_data.value(i, j, k) = pv_corr_result.element(1, 1);
+                corr_data.value(i, j, k) = pv_corr_result;
               }
               else {
                 corr_data.value(i, j, k) = 0.0f;
