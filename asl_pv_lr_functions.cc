@@ -57,11 +57,11 @@ namespace OXASL
             //cout << i << " " << j << " " << k << endl;
             //getchar();
             // Determine ROI boundary index
-            x_0 = max(i - kernel, 1);
+            x_0 = max(i - kernel, 0);
             x_1 = min(i + kernel, x);
-            y_0 = max(j - kernel, 1);
+            y_0 = max(j - kernel, 0);
             y_1 = min(j + kernel, y);
-            z_0 = max(k - kernel, 1);
+            z_0 = max(k - kernel, 0);
             z_1 = min(k + kernel, z);
 
             // create a submask here
