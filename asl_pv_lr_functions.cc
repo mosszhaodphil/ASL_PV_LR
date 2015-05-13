@@ -121,8 +121,9 @@ namespace OXASL {
               if(pv_ave >= 0.01) {
                 cout << "CC" << endl;
                 pv_corr_result = pseudo_inv * data_roi_m;
+                cout << pv_corr_result.xsize(), pv_corr_result.ysize() << endl;
                 cout << "DD" << endl;
-                corr_data.value(i, j, k) = pv_corr_result.element(0, 0);
+                //corr_data.value(i, j, k) = pv_corr_result.element(0, 0);
                 cout << "EE" << endl;
               }
               else {
