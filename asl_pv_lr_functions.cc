@@ -74,6 +74,9 @@ namespace OXASL
             //cout << mask.ROI().sum() << endl;
             if(submask.sum() > 5) {
 
+              ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
+              ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
+
               //cout << submask.sum() << endl;
               /* Create an ROI (sub volume of data and PV map),
                 then mask it with submask to create sub data and PV map */
@@ -92,25 +95,36 @@ namespace OXASL
               data_roi = data_in.ROI();
               pv_roi = pv_map.ROI();
 
+              ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
+              ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
+
+              count = 0;
               // Apply a mask on data_roi and pv_roi
               for(int a = 0; a < data_roi.xsize(); a++) {
                 for(int b = 0; b < data_roi.ysize(); b++) {
                   for(int c = 0; c < data_roi.zsize(); c++) {
                     if(submask.value(a, b, c) > 0) {
-                      continue;
+                      data_roi_m.element(count) = data_roi.value(a, b, c);
+                      pv_roi_m.element(count) = pv_roi.value(a, b, c);
+                      count++;
                     }
                     else {
-                      data_roi.value(a, b, c) = 0.0f;
-                      pv_roi.value(a, b, c) = 0.0f;
+                      continue;
+                      //data_roi.value(a, b, c) = 0.0f;
+                      //pv_roi.value(a, b, c) = 0.0f;
                     }
                   }
                 }
               }
+              data_roi_m.ReSize(count);
+              pv_roi_m.ReSize(count);
+              
               //cout << "hhhhhh" << endl;
               // Deactivate ROI
               data_in.deactivateROI();
               pv_map.deactivateROI();
 
+              /*
               // Conver data_roi and pv_roi to 2D matrix (column vector)
               //Matrix data_roi_m = Matrix(data_roi.xsize() * data_roi.ysize() * data_roi.zsize(), 1);
               //Matrix pv_roi_m = Matrix(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize(), 1);
@@ -140,7 +154,7 @@ namespace OXASL
                 //getchar();
               }
 
-                            
+              */          
               //getchar();
               // Get pseudo inversion matrix of PV map
               // ((P^t * P) ^ -1) * (P^t)
