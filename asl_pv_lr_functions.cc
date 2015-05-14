@@ -23,11 +23,10 @@ namespace OXASL
     volume<float> submask;
     volume<float> data_roi;
     volume<float> pv_roi;
-    //Matrix pseudo_inv; // pseudo inverse matrix
     RowVector pseudo_inv;
     Matrix pv_corr_result;
-    //float pv_corr_result;
 
+    // Variables to store the boundary index of submask (ROI)
     int x_0;
     int x_1;
     int y_0;
@@ -52,17 +51,14 @@ namespace OXASL
 
           // Only work with positive voxels
           if(mask.value(i, j, k) > 0) {
-            
-            //cout << mask.value(i, j, k) << endl;
-            //cout << i << " " << j << " " << k << endl;
-            //getchar();
+
             // Determine ROI boundary index
             x_0 = max(i - kernel, 0);
-            x_1 = min(i + kernel, x);
+            x_1 = min(i + kernel, x - 1);
             y_0 = max(j - kernel, 0);
-            y_1 = min(j + kernel, y);
+            y_1 = min(j + kernel, y - 1);
             z_0 = max(k - kernel, 0);
-            z_1 = min(k + kernel, z);
+            z_1 = min(k + kernel, z - 1);
 
             // create a submask here
             mask.setROIlimits(x_0, x_1, y_0, y_1, z_0, z_1);
@@ -71,21 +67,9 @@ namespace OXASL
 
             // calculate the sum of all elements in submask
             // proceed if sum is greater than 5 (arbitrary threshold)
-            //cout << mask.ROI().sum() << endl;
             if(submask.sum() > 5) {
-
-              ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
-              ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
-
-              //cout << submask.sum() << endl;
               /* Create an ROI (sub volume of data and PV map),
                 then mask it with submask to create sub data and PV map */
-
-              //cout << x_0 << " " << x_1 << endl;
-              //cout << y_0 << " " << y_1 << endl;
-              //cout << z_0 << " " << z_1 << endl;
-
-              //getchar();
 
               // Obtain ROI volume (must set limits and activate first)
               data_in.setROIlimits(x_0, x_1, y_0, y_1, z_0, z_1);
@@ -94,90 +78,56 @@ namespace OXASL
               pv_map.activateROI();
               data_roi = data_in.ROI();
               pv_roi = pv_map.ROI();
+              
 
-              ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
-              ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
+              ColumnVector data_roi_v_t = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
+              ColumnVector pv_roi_v_t = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
 
               count = 0;
               // Apply a mask on data_roi and pv_roi
+              // Extract values from data_roi and pv_roi whose mask values are non-zero
               for(int a = 0; a < data_roi.xsize(); a++) {
                 for(int b = 0; b < data_roi.ysize(); b++) {
                   for(int c = 0; c < data_roi.zsize(); c++) {
                     if(submask.value(a, b, c) > 0) {
-                      data_roi_m.element(count) = data_roi.value(a, b, c);
-                      pv_roi_m.element(count) = pv_roi.value(a, b, c);
+                      data_roi_v_t.element(count) = data_roi.value(a, b, c);
+                      pv_roi_v_t.element(count) = pv_roi.value(a, b, c);
                       count++;
+
                     }
                     else {
                       continue;
-                      //data_roi.value(a, b, c) = 0.0f;
-                      //pv_roi.value(a, b, c) = 0.0f;
                     }
                   }
                 }
               }
-              data_roi_m.ReSize(count);
-              pv_roi_m.ReSize(count);
               
-              //cout << "hhhhhh" << endl;
+              ColumnVector data_roi_v = ColumnVector(count);
+              ColumnVector pv_roi_v = ColumnVector(count);
+              
+              for(int a = 0; a < count; a++) {
+                data_roi_v.element(a) = data_roi_v_t.element(a);
+                pv_roi_v.element(a) = pv_roi_v_t.element(a);
+              }
+              
+              // Now data_roi_v and pv_roi_v stores the non-zero elemnts within this submask
+
               // Deactivate ROI
               data_in.deactivateROI();
               pv_map.deactivateROI();
 
-              /*
-              // Conver data_roi and pv_roi to 2D matrix (column vector)
-              //Matrix data_roi_m = Matrix(data_roi.xsize() * data_roi.ysize() * data_roi.zsize(), 1);
-              //Matrix pv_roi_m = Matrix(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize(), 1);
-              ColumnVector data_roi_m = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
-              ColumnVector pv_roi_m = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
-
-              //cout << data_roi.xsize() << endl;
-              count = 0;
-              //cout << data_roi.xsize() << endl;
-              //cout << data_roi.ysize() << endl;
-              //cout << data_roi.zsize() << endl;
-              //getchar();
-              for(int a = 0; a < data_roi.xsize(); a++) {
-                for(int b = 0; b < data_roi.ysize(); b++) {
-                  for(int c = 0; c < data_roi.zsize(); c++) {
-                    //getchar();
-                    data_roi_m.element(count) = data_roi.value(a, b, c);
-                    //cout << data_roi_m.element(count) << endl;
-                    pv_roi_m.element(count) = pv_roi.value(a, b, c);
-                    //cout << pv_roi_m.element(count) << endl;
-                    count++;
-                    //cout << count << endl;
-                  }
-                  //getchar();
-                }
-                //cout << a << endl;
-                //getchar();
-              }
-
-              */          
-              //getchar();
-              // Get pseudo inversion matrix of PV map
+              // Compute pseudo inversion matrix of PV map
               // ((P^t * P) ^ -1) * (P^t)
-              //cout << count << endl;
-              pseudo_inv = ( (pv_roi_m.t() * pv_roi_m).i() ) * (pv_roi_m.t());
-              //cout << "HH" << endl;
+              pseudo_inv = ( (pv_roi_v.t() * pv_roi_v).i() ) * (pv_roi_v.t());
+
               // Get average PV value of the current kernel
-              pv_ave = (float) pv_roi_m.Sum() / (count - 1);
-              //cout << "BB" << endl;
-              //getchar();
+              pv_ave = (float) pv_roi_v.Sum() / (count - 1);
 
               // Calculate PV corrected data only if there is some PV compoment
               // If there is little PV small, make it zero
               if(pv_ave >= 0.01) {
-                //cout << "CC" << endl;
-                pv_corr_result = pseudo_inv * data_roi_m;
-                //cout << pv_corr_result.Nrows() << endl;
-                //cout << pv_corr_result.Ncols() << endl;
-                //cout << "DD" << endl;
+                pv_corr_result = pseudo_inv * data_roi_v;
                 corr_data.value(i, j, k) = pv_corr_result.element(0, 0);
-                //cout << "EE" << endl;
-                //cout << corr_data.value(i, j, k) << endl;
-                //getchar();
               }
               else {
                 corr_data.value(i, j, k) = 0.0f;
@@ -190,6 +140,7 @@ namespace OXASL
               // do nothing at the moment
             } // end submask
 
+            // Discard current submask (ROI)
             mask.deactivateROI();
 
           }
@@ -198,20 +149,46 @@ namespace OXASL
             // do nothing at the moment
           } // end mask
 
-          //cout << i << endl;
-          //cout << j << endl;
-          //cout << k << endl;
-          //cout << "PP" << endl;
         }
       }
     }
 
-    cout << "bb" << endl;
-    getchar();
     return corr_data;
 
   } // End function correct_pv_lr
 
+  // This function extracts all non-zero elemtns of input matrix to a column vector
+  // Current unstable
+  /*
+  ColumnVector apply_mask(const volume<float>& data_in, const volume<float>& mask) {
+    
+    ColumnVector temp = ColumnVector(mask.xsize() * mask.ysize() * mask.zsize());
+    int count = 0;
+
+    for(int i = 0; i < mask.xsize(); i++) {
+      for(int j = 0; j < mask.ysize(); j++) {
+        for(int k = 0; k < mask.zsize(); k++) {
+          if(mask.value(i, j, k) > 0) {
+           temp.element(count) = data_in.value(i, j, k);
+           count++;
+          }
+          else {
+            continue;
+          }
+        }
+      }
+    }
+
+    ColumnVector vector_out = ColumnVector(count);
+
+    for(int a = 0; a < count; a++) {
+      vector_out.element(a) = temp.element(a);
+    }
+
+    return vector_out;
+  }
+  
+  */
   /*
   ReturnMatrix SVDdeconv(const Matrix& data, const Matrix& aif, float dt) {
     // do a singular value deconvolution of the data to get residue function
