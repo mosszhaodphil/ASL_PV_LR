@@ -69,23 +69,19 @@ int main(int argc, char *argv[])
     // GM and WM corrected single TI file
     string gm_out_filename;
     gm_out_filename = gm_out_filename + data_filename + "_gm";
-    //strcat(gm_out_filename, data_filename);
-    //strcat(gm_out_filename, "_gm");
 
     string wm_out_filename;
     wm_out_filename = wm_out_filename + data_filename + "_wm";
-    //strcat(wm_out_filename, data_filename);
-    //strcat(wm_out_filename, "_wm");
 
     // Empty 3D matrix to save  PV corrected results
     volume<float> data_gm;
     volume<float> data_wm;
 
     pv_correct(data, mask, pvgm, kernel, data_gm);
-    pv_correct(data, mask, pvwm, kernel, data_wm);
+    //pv_correct(data, mask, pvwm, kernel, data_wm);
 
     save_volume(data_gm, gm_out_filename);
-    save_volume(data_wm, wm_out_filename);
+    //save_volume(data_wm, wm_out_filename);
 
     /*
 
