@@ -11,8 +11,17 @@ namespace OXASL
 
   void pv_correct(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel, volume<float>& data_out)
   {
+    // Define variables to store NaN corrected data
+    volume<float> data_in_corr(data_in.xsize(), data_in.ysize(), data_in.zsize());
+    volume<float> mask_in_corr(mask.xsize(), mask.ysize(), mask.zsize());
+    volume<float> pv_map_in_corr(pv_map.xsize(), pv_map.ysize(), pv_map.zsize());
 
-    data_out = correct_pv_lr(data_in, mask, pv_map, kernel);
+    data_in_corr   = correct_NaN(data_in);
+    mask_in_corr   = correct_NaN(mask);
+    pv_map_in_corr = correct_NaN(pv_map);
+
+    // Linear regression partial volume correction
+    data_out = correct_pv_lr(data_in_corr, mask_in_corr, pv_map_in_corr, kernel);
 
   }
 
@@ -79,7 +88,7 @@ namespace OXASL
               data_roi = data_in.ROI();
               pv_roi = pv_map.ROI();
               
-
+              
               ColumnVector data_roi_v_t = ColumnVector(data_roi.xsize() * data_roi.ysize() * data_roi.zsize());
               ColumnVector pv_roi_v_t = ColumnVector(pv_roi.xsize() * pv_roi.ysize() * pv_roi.zsize());
 
@@ -109,6 +118,11 @@ namespace OXASL
                 data_roi_v.element(a) = data_roi_v_t.element(a);
                 pv_roi_v.element(a) = pv_roi_v_t.element(a);
               }
+              
+              // Unstable function
+              //data_roi_v = apply_mask(data_roi, submask);
+              //pv_roi_v = apply_mask(pv_roi, submask);
+
               
               // Now data_roi_v and pv_roi_v stores the non-zero elemnts within this submask
 
@@ -157,6 +171,32 @@ namespace OXASL
 
   } // End function correct_pv_lr
 
+  // Function to apply mask on 3D matrix and output to a column vector
+  volume<float> correct_NaN(const volume<float>& data_in) {
+
+    // Clone the input data to output data
+    volume<float> data_out = data_in;
+
+    for(int i = 0; i < data_in.xsize(); i++) {
+      for(int j = 0; j < data_in.ysize(); j++) {
+        for(int k = 0; k < data_in.zsize(); k++) {
+          // IEEE standard: comparison between NaN values is always false
+          // i.e. NaN == NaN is false
+          // In this case, we set it to zero
+          if(data_in.value(i, j, k) != data_in.value(i, j, k)) {
+            data_out.value(i, j, k) = 0.0f;
+          }
+          else {
+            continue;
+          }
+        }
+      }
+    }
+
+    return data_out;
+
+  }
+
   // This function extracts all non-zero elemtns of input matrix to a column vector
   // Current unstable
   /*
@@ -187,8 +227,8 @@ namespace OXASL
 
     return vector_out;
   }
-  
   */
+  
   /*
   ReturnMatrix SVDdeconv(const Matrix& data, const Matrix& aif, float dt) {
     // do a singular value deconvolution of the data to get residue function

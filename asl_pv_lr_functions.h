@@ -22,6 +22,12 @@ namespace OXASL {
   // PV correction using linear regression (Asllani's method)
   volume<float> correct_pv_lr(const volume<float>& data_in, const volume<float>& mask, const volume<float>& pv_map, int kernel);
 
+  // Function to correct NaN values
+  volume<float> correct_NaN(const volume<float>& data_in);
+
+  // Function to apply mask on 3D matrix and output to a column vector
+  ColumnVector apply_mask(const volume<float>& data_in, const volume<float>& mask);
+
   /*
 
   //output the result of deconvolution with an AIF
