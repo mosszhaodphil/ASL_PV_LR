@@ -107,7 +107,7 @@ pvwmfile(string("--pvwm"), string("pvwm"),
 outname(string("--out"), string("outname"),
   string("Output directory name"), true, requires_argument),
 
-kernel(string("--kenrel"), 5,
+kernel(string("--kernel"), 5,
   string("Kernel size (Default: 5)"), true, requires_argument),
 
 /*
