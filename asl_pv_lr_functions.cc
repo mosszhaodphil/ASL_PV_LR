@@ -133,7 +133,7 @@ namespace OXASL
               // If pv_roi is all zeros, then the pseudo inversion matrix will be singular
               // This will cause run time error
               // So we assign the corrected result to zero in such cases
-              if(is_zero_vector(pv_roi_v)) {
+              if(pv_roi_v.IsZero()) {
                 corr_data.value(i, j, k) = 0.0f;
               }
               else {
@@ -236,20 +236,6 @@ namespace OXASL
     return vector_out;
   }
   */
-
-  // This function checks if all elements of a vector are zeros
-  bool is_zero_vector(const ColumnVector data_in) {
-    bool result = true;
-
-    for(int i = 0; i < data_in.Nrows(); i++) {
-      if(data_in.element(i) != 0) {
-        result = false;
-        break;
-      }
-    }
-
-    return result;
-  }
   
   /*
   ReturnMatrix SVDdeconv(const Matrix& data, const Matrix& aif, float dt) {

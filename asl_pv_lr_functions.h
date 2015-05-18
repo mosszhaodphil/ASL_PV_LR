@@ -28,9 +28,6 @@ namespace OXASL {
   // Function to apply mask on 3D matrix and output to a column vector
   ColumnVector apply_mask(const volume<float>& data_in, const volume<float>& mask);
 
-  // Function to check if all elements of a vector are zeros
-  bool is_zero_vector(const ColumnVector data_in);
-
   /*
 
   //output the result of deconvolution with an AIF
