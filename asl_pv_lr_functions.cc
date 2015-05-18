@@ -57,7 +57,6 @@ namespace OXASL
     for (int i = 0; i < x; i++) {
       for (int j = 0; j < y; j++) {
         for (int k = 0; k < z; k++) {
-
           // Only work with positive voxels
           if(mask.value(i, j, k) > 0) {
 
@@ -114,6 +113,7 @@ namespace OXASL
               ColumnVector data_roi_v = ColumnVector(count);
               ColumnVector pv_roi_v = ColumnVector(count);
               
+              
               for(int a = 0; a < count; a++) {
                 data_roi_v.element(a) = data_roi_v_t.element(a);
                 pv_roi_v.element(a) = pv_roi_v_t.element(a);
@@ -130,24 +130,32 @@ namespace OXASL
               data_in.deactivateROI();
               pv_map.deactivateROI();
 
-              // Compute pseudo inversion matrix of PV map
-              // ((P^t * P) ^ -1) * (P^t)
-              pseudo_inv = ( (pv_roi_v.t() * pv_roi_v).i() ) * (pv_roi_v.t());
-
-              // Get average PV value of the current kernel
-              pv_ave = (float) pv_roi_v.Sum() / (count - 1);
-
-              // Calculate PV corrected data only if there is some PV compoment
-              // If there is little PV small, make it zero
-              if(pv_ave >= 0.01) {
-                pv_corr_result = pseudo_inv * data_roi_v;
-                corr_data.value(i, j, k) = pv_corr_result.element(0, 0);
-              }
-              else {
+              // If pv_roi is all zeros, then the pseudo inversion matrix will be singular
+              // This will cause run time error
+              // So we assign the corrected result to zero in such cases
+              if(is_zero_vector(pv_roi_v)) {
                 corr_data.value(i, j, k) = 0.0f;
               }
-              
+              else {
+                // Compute pseudo inversion matrix of PV map
+                // ((P^t * P) ^ -1) * (P^t)
+                pseudo_inv = ( (pv_roi_v.t() * pv_roi_v).i() ) * (pv_roi_v.t());
 
+                //cout << "  hh" << endl;
+
+                // Get average PV value of the current kernel
+                pv_ave = (float) pv_roi_v.Sum() / pv_roi_v.Nrows();
+
+                // Calculate PV corrected data only if there is some PV compoment
+                // If there is little PV small, make it zero
+                if(pv_ave >= 0.01) {
+                  pv_corr_result = pseudo_inv * data_roi_v;
+                  corr_data.value(i, j, k) = pv_corr_result.element(0, 0);
+                }
+                else {
+                  corr_data.value(i, j, k) = 0.0f;
+                }
+              }
             }
 
             else {
@@ -228,6 +236,20 @@ namespace OXASL
     return vector_out;
   }
   */
+
+  // This function checks if all elements of a vector are zeros
+  bool is_zero_vector(const ColumnVector data_in) {
+    bool result = true;
+
+    for(int i = 0; i < data_in.Nrows(); i++) {
+      if(data_in.element(i) != 0) {
+        result = false;
+        break;
+      }
+    }
+
+    return result;
+  }
   
   /*
   ReturnMatrix SVDdeconv(const Matrix& data, const Matrix& aif, float dt) {
